@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping()
 @RequiredArgsConstructor
 public class AutenticacaoController {
     private final AutenticacaoService autenticacaoService;

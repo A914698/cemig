@@ -2,6 +2,7 @@ package br.atos.cemig.User;
 
 import br.atos.cemig.Autenticacao.RoleEnum;
 import jakarta.transaction.Transactional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +24,7 @@ public class UserService implements UserDetailsService {
     public final UserRepository repository;
     public final UserMapper mapper;
 
-    public UserService(PasswordEncoder passwordEncoder, UserRepository repository, UserMapper mapper) {
+    public UserService(@Lazy PasswordEncoder passwordEncoder, UserRepository repository, UserMapper mapper) {
         this.passwordEncoder = passwordEncoder;
         this.repository = repository;
         this.mapper = mapper;
@@ -43,8 +44,12 @@ public class UserService implements UserDetailsService {
     public UserDto cadastrar(UserDto dados) {
         UserEntity userEntity = mapper.toEntity(dados);
 
-        String senhaCriptografada = passwordEncoder.encode(userEntity.getPassword());
+        // Define a senha padrão "Senha123" e criptografa
+        String senhaCriptografada = passwordEncoder.encode("Senha123");
         userEntity.setPassword(senhaCriptografada);
+
+//        String senhaCriptografada = passwordEncoder.encode(userEntity.getPassword());
+//        userEntity.setPassword(senhaCriptografada);
 
         userEntity = repository.save(userEntity);
 

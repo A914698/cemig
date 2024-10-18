@@ -1,52 +1,63 @@
 package br.atos.cemig;
 
-import br.atos.cemig.Autenticacao.RoleEnum;
-import br.atos.cemig.User.UserEntity;
-import br.atos.cemig.User.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.atos.cemig.User.UserDto;
+import br.atos.cemig.User.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @SpringBootApplication
 public class CemigApplication {
 
-	@Autowired
-	private UserRepository userRepository;
+	private final UserService userService;
+
+	// Injeção de dependência do UserService via construtor
+	public CemigApplication(UserService userService) {
+		this.userService = userService;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(CemigApplication.class, args);
+		System.out.println("Hello World");
 	}
 
+	// Definição do Bean CommandLineRunner fora do método main
 	@Bean
-	public CommandLineRunner initializeDatabase() {
+	public CommandLineRunner loadData() {
 		return args -> {
-			saveUserIfNotExists("John Doe", "john.doe@example.com", "familyMember1", "12345678901", LocalDate.of(1990, 1, 1), "123456789", "987654321", "Senha123", RoleEnum.USER);
-			saveUserIfNotExists("Jane Smith", "jane.smith@example.com", "familyMember2", "23456789012", LocalDate.of(1992, 2, 2), "234567890", "876543210", "Senha456", RoleEnum.ADMIN);
-			saveUserIfNotExists("Bob Johnson", "bob.johnson@example.com", "familyMember3", "34567890123", LocalDate.of(1985, 3, 3), "345678901", "765432109", "Senha789", RoleEnum.USER);
-		};
-	}
+			// Criação de usuários de exemplo
+			UserDto user1 = new UserDto(
+					null,
+					"João Silva",
+					"joao@email.com",
+					"Maria Silva",
+					"12345678909",
+					LocalDate.of(1985, 10, 5),
+					"11987654321",
+					"1134567890",
+					null // Senha será gerada no service
+			);
 
-	private void saveUserIfNotExists(String name, String email, String memberFamily, String cpf, LocalDate birthDate, String cellphone, String telephone, String password, RoleEnum role) {
-		Optional<UserEntity> existingUser = userRepository.findByEmail(email);
-		if (existingUser.isEmpty()) {
-			UserEntity user = new UserEntity();
-			user.setName(name);
-			user.setEmail(email);
-			user.setMemberFamily(memberFamily);
-			user.setCpf(cpf);
-			user.setBirthDate(birthDate);
-			user.setCellphone(cellphone);
-			user.setTelephone(telephone);
-			user.setPassword(password); // Certifique-se de hashear a senha antes de salvar!
-			user.setRole(role);
-			user.setDeletedAt(null); // ou LocalDateTime.now() se você quiser marcar como deletado
-			userRepository.save(user);
-		}
+			UserDto user2 = new UserDto(
+					null,
+					"Ana Santos",
+					"ana@email.com",
+					"Pedro Santos",
+					"98765432100",
+					LocalDate.of(1990, 7, 12),
+					"21998765432",
+					"2134567890",
+					null // Senha será gerada no service
+			);
+
+			// Cadastrar os usuários no banco
+			userService.cadastrar(user1);
+			userService.cadastrar(user2);
+
+			System.out.println("Usuários de teste inseridos com sucesso!");
+		};
 	}
 }
